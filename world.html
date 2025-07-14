@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Countries Data</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #f39c12;
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+    input[type="text"] {
+      width: 90%;
+      max-width: 600px;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    .buttons {
+      margin-bottom: 20px;
+    }
+
+    .buttons button {
+      margin: 0 5px;
+      padding: 10px 20px;
+      background-color: #f39c12;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .buttons button:hover {
+      background-color: #e67e22;
+    }
+
+    .buttons span {
+      margin-left: 5px;
+      font-size: 24px;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+
+    .countries {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .country {
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+
+    .country:hover {
+      transform: translateY(-5px);
+    }
+
+    .country img {
+      width: 100%;
+      max-height: 100px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .bar-chart {
+      margin-top: 40px;
+      text-align: left;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      display: none;
+    }
+
+    .bar {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+    }
+
+    .bar-name {
+      width: 150px;
+    }
+
+    .bar-fill {
+      height: 25px;
+      background-color: #f39c12;
+      text-align: right;
+      color: white;
+      padding-right: 5px;
+      border-radius: 5px;
+      line-height: 25px;
+    }
+
+    .footer {
+      margin-top: 40px;
+      color: #888;
+    }
+
+    
+    body.dark-mode {
+      background-color: #1e1e1e;
+      color: #f5f5f5;
+    }
+
+    body.dark-mode h1 {
+      color: #f39c12;
+    }
+
+    body.dark-mode h2 {
+      color: #ccc;
+    }
+
+    body.dark-mode input[type="text"] {
+      background-color: #333;
+      color: #f5f5f5;
+      border: 1px solid #555;
+    }
+
+    body.dark-mode .country {
+      background-color: #2a2a2a;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+
+    body.dark-mode .bar-fill {
+      background-color: #e67e22;
+    }
+
+    body.dark-mode .buttons button {
+      background-color: #555;
+      color: #fff;
+    }
+
+    body.dark-mode .buttons button:hover {
+      background-color: #888;
+    }
+
+    body.dark-mode .buttons span {
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>World Countries Data</h1>
+  <h2>Currently, we have <span id="country-count"></span> countries</h2>
+
+  <button onclick="toggleTheme()" style="margin-bottom: 20px; padding: 10px 20px; background-color: #444; color: white; border: none; border-radius: 8px; cursor: pointer;">
+    🌙
+  </button>
+
+  <input type="text" id="search" placeholder="Search countries by name, city, and languages" />
+
+  <div class="buttons">
+    <button onclick="sortCountries('name')">NAME ⬍</button>
+    <button onclick="sortCountries('capital')">CAPITAL ⬍</button>
+    <button onclick="sortCountries('population')">POPULATION ⬍</button>
+    <span onclick="toggleChart()" title="Show population chart">📊</span>
+  </div>
+
+  <div class="countries" id="country-container"></div>
+
+  <div class="bar-chart" id="population-chart">
+    <h2>10 Most Populated Countries in the World</h2>
+  </div>
+
+  <div class="footer">Created with ME</div>
+
+  <script>
+    const countries = [
+      { name: "China", capital: "Beijing", language: "Chinese", population: 1377422166, flag: "https://flagcdn.com/cn.svg" },
+      { name: "India", capital: "New Delhi", language: "Hindi", population: 1295210000, flag: "https://flagcdn.com/in.svg" },
+      { name: "United States", capital: "Washington, D.C.", language: "English", population: 331000000, flag: "https://flagcdn.com/us.svg" },
+      { name: "Indonesia", capital: "Jakarta", language: "Indonesian", population: 258705000, flag: "https://flagcdn.com/id.svg" },
+      { name: "Brazil", capital: "Brasília", language: "Portuguese", population: 206135893, flag: "https://flagcdn.com/br.svg" },
+      { name: "Pakistan", capital: "Islamabad", language: "Urdu", population: 194125062, flag: "https://flagcdn.com/pk.svg" },
+      { name: "Nigeria", capital: "Abuja", language: "English", population: 186988000, flag: "https://flagcdn.com/ng.svg" },
+      { name: "Bangladesh", capital: "Dhaka", language: "Bengali", population: 161006790, flag: "https://flagcdn.com/bd.svg" },
+      { name: "Russia", capital: "Moscow", language: "Russian", population: 146599183, flag: "https://flagcdn.com/ru.svg" },
+      { name: "Japan", capital: "Tokyo", language: "Japanese", population: 126960000, flag: "https://flagcdn.com/jp.svg" },
+      { name: "Mexico", capital: "Mexico City", language: "Spanish", population: 126014024, flag: "https://flagcdn.com/mx.svg" },
+      { name: "Ethiopia", capital: "Addis Ababa", language: "Amharic", population: 114963588, flag: "https://flagcdn.com/et.svg" },
+      { name: "Philippines", capital: "Manila", language: "Filipino", population: 109581078, flag: "https://flagcdn.com/ph.svg" },
+      { name: "Egypt", capital: "Cairo", language: "Arabic", population: 102334404, flag: "https://flagcdn.com/eg.svg" },
+      { name: "Vietnam", capital: "Hanoi", language: "Vietnamese", population: 97338579, flag: "https://flagcdn.com/vn.svg" },
+      { name: "DR Congo", capital: "Kinshasa", language: "French", population: 89561403, flag: "https://flagcdn.com/cd.svg" },
+      { name: "Turkey", capital: "Ankara", language: "Turkish", population: 84339067, flag: "https://flagcdn.com/tr.svg" },
+      { name: "Iran", capital: "Tehran", language: "Persian", population: 83992949, flag: "https://flagcdn.com/ir.svg" },
+      { name: "Germany", capital: "Berlin", language: "German", population: 83783942, flag: "https://flagcdn.com/de.svg" },
+      { name: "Thailand", capital: "Bangkok", language: "Thai", population: 69799978, flag: "https://flagcdn.com/th.svg" },
+      { name: "France", capital: "Paris", language: "French", population: 65273511, flag: "https://flagcdn.com/fr.svg" },
+      { name: "UK", capital: "London", language: "English", population: 67886011, flag: "https://flagcdn.com/gb.svg" },
+      { name: "Italy", capital: "Rome", language: "Italian", population: 60461826, flag: "https://flagcdn.com/it.svg" },
+      { name: "South Africa", capital: "Pretoria", language: "Zulu", population: 59308690, flag: "https://flagcdn.com/za.svg" },
+      { name: "South Korea", capital: "Seoul", language: "Korean", population: 51269185, flag: "https://flagcdn.com/kr.svg" },
+      { name: "Spain", capital: "Madrid", language: "Spanish", population: 46754778, flag: "https://flagcdn.com/es.svg" },
+      { name: "Argentina", capital: "Buenos Aires", language: "Spanish", population: 45195774, flag: "https://flagcdn.com/ar.svg" },
+      { name: "Ukraine", capital: "Kyiv", language: "Ukrainian", population: 43733762, flag: "https://flagcdn.com/ua.svg" },
+      { name: "Poland", capital: "Warsaw", language: "Polish", population: 38386000, flag: "https://flagcdn.com/pl.svg" },
+      { name: "Canada", capital: "Ottawa", language: "English/French", population: 37742154, flag: "https://flagcdn.com/ca.svg" }
+    ];
+
+    const container = document.getElementById("country-container");
+    const search = document.getElementById("search");
+    const countDisplay = document.getElementById("country-count");
+    const chart = document.getElementById("population-chart");
+
+    let currentCountries = [...countries];
+
+    function displayCountries(data) {
+      container.innerHTML = "";
+      countDisplay.textContent = data.length;
+      data.forEach(country => {
+        const div = document.createElement("div");
+        div.className = "country";
+        div.innerHTML = `
+          <img src="${country.flag}" alt="Flag of ${country.name}"/>
+          <h3>${country.name.toUpperCase()}</h3>
+          <p><strong>Capital:</strong> ${country.capital}</p>
+          <p><strong>Language:</strong> ${country.language}</p>
+          <p><strong>Population:</strong> ${country.population.toLocaleString()}</p>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+
+    function displayChart(data) {
+      chart.style.display = "block";
+      chart.innerHTML = '<h2>10 Most Populated Countries in the World</h2>';
+      const sorted = [...data].sort((a, b) => b.population - a.population).slice(0, 10);
+      const max = sorted[0].population;
+
+      sorted.forEach(country => {
+        const widthPercent = (country.population / max) * 100;
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        const labelInside = widthPercent > 30;
+
+        bar.innerHTML = `
+          <div class="bar-name">${country.name}</div>
+          <div class="bar-fill" style="width: ${widthPercent}%;">
+            ${labelInside ? country.population.toLocaleString() : ''}
+          </div>
+          ${!labelInside ? `<div style="margin-left: 8px;">${country.population.toLocaleString()}</div>` : ''}
+        `;
+        chart.appendChild(bar);
+      });
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    function toggleChart() {
+      if (chart.style.display === "block") {
+        chart.style.display = "none";
+      } else {
+        displayChart(currentCountries);
+        chart.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    search.addEventListener("input", () => {
+      const keyword = search.value.toLowerCase();
+      const filtered = countries.filter(c =>
+        c.name.toLowerCase().includes(keyword) ||
+        c.capital.toLowerCase().includes(keyword) ||
+        c.language.toLowerCase().includes(keyword)
+      );
+      currentCountries = filtered;
+      displayCountries(filtered);
+      chart.style.display = "none";
+    });
+
+    function sortCountries(type) {
+      currentCountries.sort((a, b) => {
+        if (type === 'population') {
+          return b.population - a.population;
+        }
+        return a[type].localeCompare(b[type]);
+      });
+      displayCountries(currentCountries);
+      chart.style.display = "none";
+    }
+
+    displayCountries(countries);
+  </script>
+</body>
+
+</html>
